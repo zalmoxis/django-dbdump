@@ -127,9 +127,14 @@ class Command(BaseCommand):
 
         raw_args = options['raw_args']
 
+        print 'When prompted for the prod db password, use `%s`' % settings.DATABASES['default']['PASSWORD']
         if 'mysql' in self.engine:
             self.do_mysql_backup(outfile, raw_args=raw_args)
         elif 'postgresql' in self.engine:
+            self.do_postgresql_backup(outfile, raw_args=raw_args)
+        elif 'django.contrib.gis.db.backends.postgis' in self.engine:
+            print raw_args
+            raw_args += ' -T topology.*'
             self.do_postgresql_backup(outfile, raw_args=raw_args)
         else:
             raise CommandError('Backups of %s engine are not implemented.' % self.engine)
@@ -256,3 +261,4 @@ class Command(BaseCommand):
         if self.password:
             process.stdin.write('%s\n' % self.password)
             process.stdin.close()
+
